@@ -7,7 +7,8 @@
  * JSDeferred Copyright (c) 2007 cho45 ( www.lowreal.net )
  *
  * This is a JSDeferred flavoured Promise, or a Promise based JSDeferred.
- * Original: http://github.com/cho45/jsdeferred
+ * Repository: https://github.com/piroor/promise-jsdeferred
+ * Original: https://github.com/cho45/jsdeferred
  *
  * License:: MIT
  *
