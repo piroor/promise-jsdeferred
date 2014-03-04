@@ -408,3 +408,188 @@ function testCallNested() {
   yield finished;
   assert.equal([[1], [2, 3]], results);
 }
+
+// This is different from original JSDeferred.
+// The original version returns undefined as the
+// returned value of parallel() with an empty array, but
+// Promise.all() returns an empty array.
+function testParallelEmptyArray() {
+  ns.
+  parallel([]).
+  next(function(aResult) {
+    result = aResult;
+    finished.value = true;
+  }).
+  error(function(aError) {
+    result = aError;
+    finished.value = true;
+  });
+
+  yield finished;
+  assert.equal([], result);
+}
+
+function testParallelArray() {
+  ns.
+  parallel([
+    ns.next(function() {
+      return 0;
+    }),
+    ns.next(function() {
+      return 1;
+    })
+  ]).
+  next(function(aResult) {
+    result = aResult;
+    finished.value = true;
+  }).
+  error(function(aError) {
+    result = aError;
+    finished.value = true;
+  });
+
+  yield finished;
+  assert.equal([0, 1], result);
+}
+
+function testParallelHash() {
+  ns.
+  parallel({
+    a: ns.next(function() {
+      return 0;
+    }),
+    b: ns.next(function() {
+      return 1;
+    })
+  }).
+  next(function(aResult) {
+    result = aResult;
+    finished.value = true;
+  }).
+  error(function(aError) {
+    result = aError;
+    finished.value = true;
+  });
+
+  yield finished;
+  assert.equal({ a: 0, b: 1 }, result);
+}
+
+function testParallelArgs() {
+  ns.
+  parallel(
+    ns.next(function() {
+      return 0;
+    }),
+    ns.next(function() {
+      return 1;
+    })
+  ).
+  next(function(aResult) {
+    result = aResult;
+    finished.value = true;
+  }).
+  error(function(aError) {
+    result = aError;
+    finished.value = true;
+  });
+
+  yield finished;
+  assert.equal([0, 1], result);
+}
+
+function testEarlierArray() {
+  ns.
+  earlier([
+    ns.wait(0.1).next(function() {
+      return 0;
+    }),
+    ns.wait(0.2).next(function() {
+      return 1;
+    })
+  ]).
+  next(function(aResult) {
+    result = aResult;
+    finished.value = true;
+  }).
+  error(function(aError) {
+    result = aError;
+    finished.value = true;
+  });
+
+  yield finished;
+  yield 200;
+  assert.equal([0, undefined], result);
+}
+
+function testEarlierArrayReversed() {
+  ns.
+  earlier([
+    ns.wait(0.2).next(function() {
+      return 0;
+    }),
+    ns.wait(0.1).next(function() {
+      return 1;
+    })
+  ]).
+  next(function(aResult) {
+    result = aResult;
+    finished.value = true;
+  }).
+  error(function(aError) {
+    result = aError;
+    finished.value = true;
+  });
+
+  yield finished;
+  yield 200;
+  assert.equal([undefined, 1], result);
+}
+
+function testEarlierHash() {
+  ns.
+  earlier({
+    a: ns.wait(0.1).next(function() {
+      return 0;
+    }),
+    b: ns.wait(0.2).next(function() {
+      return 1;
+    })
+  }).
+  next(function(aResult) {
+    result = aResult;
+    finished.value = true;
+  }).
+  error(function(aError) {
+    result = aError;
+    finished.value = true;
+  });
+
+  yield finished;
+  yield 200;
+  assert.equal({ a: 0, b: undefined }, result);
+}
+
+function testEarlierArgs() {
+  ns.
+  earlier(
+    ns.wait(0.1).next(function() {
+      return 0;
+    }),
+    ns.wait(0.2).next(function() {
+      return 1;
+    })
+  ).
+  next(function(aResult) {
+    result = aResult;
+    finished.value = true;
+  }).
+  error(function(aError) {
+    result = aError;
+    finished.value = true;
+  });
+
+  yield finished;
+  yield 200;
+  assert.equal([0, undefined], result);
+}
