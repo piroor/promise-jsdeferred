@@ -35,13 +35,12 @@ var EXPORTED_SYMBOLS = ['Deferred'];
 
 Components.utils.import('resource://gre/modules/Promise.jsm');
 
-if (!setTimeout) {
+if (!this.setTimeout) {
   setTimeout = function(aCallback, aInterval) {
     var timer = Components
                   .classes['@mozilla.org/timer;1']
                   .createInstance(Components.interfaces.nsITimer);
     timer.initWithCallback(aCallback, aInterval, timer.TYPE_ONE_SHOT);
-    timers.push(timer);
     return timer;
   };
 
@@ -115,10 +114,10 @@ WrappedDeferred.prototype = {
 
   // JSDeferred compatible APIs
   get canceller() {
-    return this._promise._canceller;
+    return this._promise.canceller;
   },
   set canceller(aValue) {
-    return this._promise._canceller = aValue;
+    return this._promise.canceller = aValue;
   },
   /* DUPLICATED */
   call: function(aResult) {
@@ -268,7 +267,7 @@ Deferred.wait = function(aSeconds) {
   var timer = setTimeout(function() {
     var delta = Date.now() - start;
     deferred.resolve(delta);
-  }, aSeconds / 1000);
+  }, aSeconds * 1000);
   deferred.canceller = function() {
     clearTimeout(timer);
   };
@@ -364,14 +363,15 @@ Deferred.loop = function(aLoopCount, aTask) {
   });
 };
 
-Deferred.repeat = function(aLoopCount, aTask) {
+Deferred.repeat = function(aRepeatCount, aTask) {
   var count = 0;
+  var result = null;
   return Deferred.then(function repeatedTask() {
     var start = Date.now();
     do {
-      if (count >= aLoopCount)
-        return null;
-      aTask(count++);
+      if (count >= aRepeatCount)
+        return result;
+      result = aTask(count++);
     }
     while (Date.now() - start < 20);
     return Deferred.call(repeatedTask);
