@@ -84,8 +84,8 @@ WrappedPromise.prototype = {
     return this.then(successCallback, aErrorCallback);
   },
   cancel: function() {
-    if (typeof this.canceller == 'function')
-      this.canceller.apply(this);
+    if (typeof this._canceller == 'function')
+      this._canceller.apply(this);
   }
 };
 
@@ -142,6 +142,8 @@ WrappedDeferred.prototype = {
 function Deferred(aPromiseOrDeferred) {
   if (!aPromiseOrDeferred)
     return new WrappedDeferred(Promise.defer());
+  if (Deferred.isDeferred(aPromiseOrDeferred))
+    return aPromiseOrDeferred;
   if ('promise' in aPromiseOrDeferred)
     return new WrappedDeferred(aPromiseOrDeferred);
   return new WrappedPromise(aPromiseOrDeferred);
@@ -229,6 +231,10 @@ Deferred.earlier = function(...aArgs) {
         results[aKey] = aResult;
         deferred.cancel();
         deferred.resolve(results);
+        // workaround: to avoid unexpected receiving of "canceled" deferred tasks,
+        // I bind a different object to the variable "results".
+        // the "cancel()" should cancel ancestor tasks...
+        results = {};
       })
       .error(function(aError) {
         deferred.reject(aError);
@@ -252,6 +258,7 @@ Deferred.earlier = function(...aArgs) {
     };
   } else {
     Object.keys(tasks).forEach(function(aKey) {
+      results[aKey] = undefined;
       var task = tasks[aKey];
       if (typeof task == 'function')
         tasks[aKey] = task = Deferred.then(task);
@@ -393,7 +400,7 @@ Deferred.connect = function(...aArgs) {
   if (typeof aArgs[1] == 'string') {
     target = aArgs[0];
     connectedFunction = target[aArgs[1]];
-    options = aArgs[2] || {};
+    params = aArgs[2] || {};
   } else {
     connectedFunction = aArgs[0];
     params = aArgs[1] || {};
