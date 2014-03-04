@@ -222,42 +222,52 @@ Deferred.earlier = function(...aArgs) {
   if (aArgs.length > 1)
     return this.earlier(aArgs);
 
+  var deferred = Deferred(Promise.defer());
+  var run = function(aTask, aKey) {
+    aTask
+      .then(function(aResult) {
+        results[aKey] = aResult;
+        deferred.cancel();
+        deferred.resolve(results);
+      })
+      .error(function(aError) {
+        deferred.reject(aError);
+      });
+  };
+
   var tasks = aArgs[0];
+  var results = {};
   if (Array.isArray(tasks)) {
-    var hash = {
-      length: tasks.length
-    };
+    results = [];
+    results.length = tasks.length;
     tasks.forEach(function(aTask, aIndex) {
-      hash[aIndex] = aTask;
+      if (typeof aTask == 'function')
+        tasks[aIndex] = aTask = Deferred.then(aTask);
+      run(aTask, aIndex);
     });
-    tasks = hash;
+    deferred.canceller = function() {
+      tasks.forEach(function(aTask) {
+        aTask.cancel();
+      });
+    };
+  } else {
+    Object.keys(tasks).forEach(function(aKey) {
+      var task = tasks[aKey];
+      if (typeof task == 'function')
+        tasks[aKey] = task = Deferred.then(task);
+      run(task, aKey);
+    });
+    deferred.canceller = function() {
+      Object.keys(tasks).forEach(function(aKey) {
+        var task = tasks[aKey];
+        task.cancel();
+      });
+    };
   }
 
   if (tasks.length == 0)
     return Deferred.then();
 
-  var deferred = Deferred(Promise.defer());
-  var results = {};
-  Object.keys(tasks).forEach(function(aKey) {
-    var task = tasks[aKey];
-    if (typeof task == 'function')
-      tasks[aKey] = task = Deferred.then(task);
-    task
-      .then(function(aResult) {
-        results[aKey] = aResult;
-        deferred.cancel();
-        deferred.resolve(aResult);
-      })
-      .error(function(aError) {
-        deferred.reject(aError);
-      });
-  });
-  deferred.canceller = function() {
-    Object.keys(tasks).forEach(function(aKey) {
-      var task = tasks[aKey];
-      task.cancel();
-    });
-  };
   return deferred.promise;
 };
 
