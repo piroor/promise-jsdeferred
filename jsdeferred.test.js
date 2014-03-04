@@ -593,3 +593,198 @@ function testEarlierArgs() {
   yield 200;
   assert.equal([0, undefined], result);
 }
+
+function testChain() {
+  ns.chain(
+    function() {
+      results.push(0);
+      return ns.wait(0.1);
+    },
+    function(delta) {
+      results.push(1);
+      throw 'error';
+    },
+    function error(aError) {
+      results.push(aError);
+    },
+    [
+      function () {
+        results.push(10);
+        return ns.next(function () { return 100; });
+      },
+      function () {
+        results.push(20);
+        return ns.next(function () { return 200; });
+      }
+    ],
+    function(aResults) {
+      results.push(aResults);
+    },
+    {
+      a: function () { return 1000; },
+      b: function () { return 2000; }
+    },
+    function (aResults) {
+      results.push(aResults);
+      finished.value = true;
+    },
+    function error(aError) {
+      results.push('never');
+      results.push(aError);
+      finished.value = true;
+    }
+  );
+
+  yield finished;
+  assert.equal([
+    0,
+    1,
+    'error',
+    10,
+    20,
+    [100, 200],
+    { a: 1000, b: 2000 }
+  ], results);
+}
+
+function testConnectSimple() {
+  var add = function(aA, aB, aCallback) {
+    aCallback(aA + aB);
+  };
+  var deferredAdd = ns.Deferred.connect(add, { ok: 2 });
+
+  deferredAdd(2, 3).
+  next(function(aResult) {
+    result = aResult;
+    finished.value = true;
+  });
+
+  yield finished;
+  assert.equal(5, result);
+}
+
+function testConnectWithTarget() {
+  var target = {
+    add: function(aA, aB) {
+      return aA + aB;
+    },
+    addWithCallback: function(aA, aB, aCallback) {
+      aCallback(this.add(aA, aB));
+    }
+  };
+  var deferredAdd = ns.Deferred.connect(target, 'addWithCallback', { ok: 2 });
+
+  deferredAdd(2, 3).
+  next(function(aResult) {
+    result = aResult;
+    finished.value = true;
+  });
+
+  yield finished;
+  assert.equal(5, result);
+}
+
+function testConnectWithoutOkPosition() {
+  var target = {
+    add: function(aA, aB) {
+      return aA + aB;
+    },
+    addWithCallback: function(aA, aB, aCallback) {
+      aCallback(this.add(aA, aB));
+    }
+  };
+  var deferredAdd = ns.Deferred.connect(target, 'addWithCallback');
+
+  deferredAdd(2, 3).
+  next(function(aResult) {
+    result = aResult;
+    finished.value = true;
+  });
+
+  yield finished;
+  assert.equal(5, result);
+}
+
+function testConnectWithBoundArgs() {
+  var add = function(aA, aB, aCallback) {
+    aCallback(aA + aB);
+  };
+  var deferredAdd = ns.Deferred.connect(add, { args: [2, 3] });
+
+  deferredAdd().
+  next(function(aResult) {
+    result = aResult;
+    finished.value = true;
+  });
+
+  yield finished;
+  assert.equal(5, result);
+}
+
+function testConnectWithBoundArgsIgnoreUnknownArg() {
+  var add = function(aA, aB, aCallback) {
+    aCallback(aA + aB);
+  };
+  var deferredAdd = ns.Deferred.connect(add, { args: [2, 3] });
+
+  deferredAdd().
+  next(function(aResult) {
+    result = aResult;
+    finished.value = true;
+  });
+
+  yield finished;
+  assert.equal(5, result);
+}
+
+function testConnectWithNormalAndBoundArgs() {
+  var add = function(aA, aB, aCallback) {
+    aCallback(aA + aB);
+  };
+  var deferredAdd = ns.Deferred.connect(add, { ok: 2, args: [2] });
+
+  deferredAdd(3).
+  next(function(aResult) {
+    result = aResult;
+    finished.value = true;
+  });
+
+  yield finished;
+  assert.equal(5, result);
+}
+
+function testConnectWithTargetAndBoundArgs() {
+  var target = {
+    add: function(aA, aB) {
+      return aA + aB;
+    },
+    addWithCallback: function(aA, aB, aCallback) {
+      aCallback(this.add(aA, aB));
+    }
+  };
+  var deferredAdd = ns.Deferred.connect(target, 'addWithCallback', { ok: 2, args: [2] });
+
+  deferredAdd(3).
+  next(function(aResult) {
+    result = aResult;
+    finished.value = true;
+  });
+
+  yield finished;
+  assert.equal(5, result);
+}
+
+function testConnectSetTimeout() {
+  var timeout = ns.Deferred.connect(function(aSeconds, aCallback) {
+    return utils.setTimeout(aCallback, aSeconds);
+  });
+
+  timeout(1).
+  next(function() {
+    result = 'OK';
+    finished.value = true;
+  });
+
+  yield finished;
+  assert.equal('OK', result);
+}
