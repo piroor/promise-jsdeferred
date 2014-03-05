@@ -1,5 +1,5 @@
 /**
- * @fileOverview Promise-JSDeferred
+ * @fileOverview Promise.jsm-JSDeferred
  * @author       piro.outsider.reflex@gmail.com
  * @version      0.1
  * @license
