@@ -4,4 +4,4 @@ var ns = {};
 ns.Deferred = DeferredLibrary.Deferred;
 ns.Deferred.define(ns);
 
-utils.include('./jsdeferred.test.inc.js');
+utils.include('./test.inc.js');
