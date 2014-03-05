@@ -1,9 +1,3 @@
-var DeferredLibrary = utils.import('./jsdeferred.js', {});
-
-var ns = {};
-ns.Deferred = DeferredLibrary.Deferred;
-ns.Deferred.define(ns);
-
 var result = undefined;
 var results = [];
 var finished = { value: false };
