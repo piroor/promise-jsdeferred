@@ -4,24 +4,6 @@ var ns = {};
 ns.Deferred = DeferredLibrary.Deferred;
 ns.Deferred.define(ns);
 
-function calcAccuracy() {
-  var d = new ns.Deferred();
-  var r = [];
-  var i = 30;
-  var t = new Date().getTime();
-  utils.setTimeout(function callback() {
-    if (i-- > 0) {
-      var n = new Date().getTime();
-      r.push(n - t);
-      t = n;
-      utils.setTimeout(callback, 0);
-    } else {
-      d.call(r);
-    }
-  }, 0);
-  return d;
-}
-
 var result = undefined;
 var results = [];
 var finished = { value: false };
@@ -125,7 +107,7 @@ function testProcessSequenceSimple() {
   results.push(0);
 
   yield finished;
-  assert.equal([0, 1, 2], results);
+  assert.equals([0, 1, 2], results);
 }
 
 function testProcessSequenceComplex() {
@@ -144,7 +126,7 @@ function testProcessSequenceComplex() {
   results.push(0);
 
   yield finished;
-  assert.equal([0, 1, 2, 3], results);
+  assert.equals([0, 1, 2, 3], results);
 }
 
 function testSuccessAndFailureCallbackChain() {
@@ -168,7 +150,7 @@ function testSuccessAndFailureCallbackChain() {
   });
 
   yield finished;
-  assert.equal(['Error', 'Error2'], results);
+  assert.equals(['Error', 'Error2'], results);
 }
 
 function testWait() {
@@ -201,7 +183,7 @@ function testWait() {
   });
 
   yield finished;
-  assert.equal(['start', 'wait', 'finish'], results);
+  assert.equals(['start', 'wait', 'finish'], results);
   assert.compare(0, '<=', delta0);
   assert.compare(100, '>', delta0);
   assert.compare(50, '<', delta100);
@@ -291,7 +273,7 @@ function testLoop() {
   });
 
   yield finished;
-  assert.equal([
+  assert.equals([
     'start',
     null,
     'loop1',
@@ -350,7 +332,7 @@ function testRepeat() {
   });
 
   yield finished;
-  assert.equal([
+  assert.equals([
     'start',
     null,
     'repeat 1-0',
@@ -384,7 +366,7 @@ function testCall() {
   });
 
   yield finished;
-  assert.equal(1024, result);
+  assert.equals(1024, result);
 }
 
 function testCallNested() {
@@ -406,7 +388,7 @@ function testCallNested() {
   });
 
   yield finished;
-  assert.equal([[1], [2, 3]], results);
+  assert.equals([[1], [2, 3]], results);
 }
 
 // This is different from original JSDeferred.
@@ -426,7 +408,7 @@ function testParallelEmptyArray() {
   });
 
   yield finished;
-  assert.equal([], result);
+  assert.equals([], result);
 }
 
 function testParallelArray() {
@@ -449,7 +431,7 @@ function testParallelArray() {
   });
 
   yield finished;
-  assert.equal([0, 1], result);
+  assert.equals([0, 1], result);
 }
 
 function testParallelHash() {
@@ -472,7 +454,7 @@ function testParallelHash() {
   });
 
   yield finished;
-  assert.equal({ a: 0, b: 1 }, result);
+  assert.equals({ a: 0, b: 1 }, result);
 }
 
 function testParallelArgs() {
@@ -495,7 +477,7 @@ function testParallelArgs() {
   });
 
   yield finished;
-  assert.equal([0, 1], result);
+  assert.equals([0, 1], result);
 }
 
 function testEarlierArray() {
@@ -519,7 +501,7 @@ function testEarlierArray() {
 
   yield finished;
   yield 200;
-  assert.equal([0, undefined], result);
+  assert.equals([0, undefined], result);
 }
 
 function testEarlierArrayReversed() {
@@ -543,7 +525,7 @@ function testEarlierArrayReversed() {
 
   yield finished;
   yield 200;
-  assert.equal([undefined, 1], result);
+  assert.equals([undefined, 1], result);
 }
 
 function testEarlierHash() {
@@ -567,7 +549,7 @@ function testEarlierHash() {
 
   yield finished;
   yield 200;
-  assert.equal({ a: 0, b: undefined }, result);
+  assert.equals({ a: 0, b: undefined }, result);
 }
 
 function testEarlierArgs() {
@@ -591,7 +573,7 @@ function testEarlierArgs() {
 
   yield finished;
   yield 200;
-  assert.equal([0, undefined], result);
+  assert.equals([0, undefined], result);
 }
 
 function testChain() {
@@ -636,7 +618,7 @@ function testChain() {
   );
 
   yield finished;
-  assert.equal([
+  assert.equals([
     0,
     1,
     'error',
@@ -660,7 +642,7 @@ function testConnectSimple() {
   });
 
   yield finished;
-  assert.equal(5, result);
+  assert.equals(5, result);
 }
 
 function testConnectWithTarget() {
@@ -681,7 +663,7 @@ function testConnectWithTarget() {
   });
 
   yield finished;
-  assert.equal(5, result);
+  assert.equals(5, result);
 }
 
 function testConnectWithoutOkPosition() {
@@ -702,7 +684,7 @@ function testConnectWithoutOkPosition() {
   });
 
   yield finished;
-  assert.equal(5, result);
+  assert.equals(5, result);
 }
 
 function testConnectWithBoundArgs() {
@@ -718,7 +700,7 @@ function testConnectWithBoundArgs() {
   });
 
   yield finished;
-  assert.equal(5, result);
+  assert.equals(5, result);
 }
 
 function testConnectWithBoundArgsIgnoreUnknownArg() {
@@ -734,7 +716,7 @@ function testConnectWithBoundArgsIgnoreUnknownArg() {
   });
 
   yield finished;
-  assert.equal(5, result);
+  assert.equals(5, result);
 }
 
 function testConnectWithNormalAndBoundArgs() {
@@ -750,7 +732,7 @@ function testConnectWithNormalAndBoundArgs() {
   });
 
   yield finished;
-  assert.equal(5, result);
+  assert.equals(5, result);
 }
 
 function testConnectWithTargetAndBoundArgs() {
@@ -771,12 +753,12 @@ function testConnectWithTargetAndBoundArgs() {
   });
 
   yield finished;
-  assert.equal(5, result);
+  assert.equals(5, result);
 }
 
 function testConnectSetTimeout() {
-  var timeout = ns.Deferred.connect(function(aSeconds, aCallback) {
-    return utils.setTimeout(aCallback, aSeconds);
+  var timeout = ns.Deferred.connect(function(aDelay, aCallback) {
+    setTimeout(aCallback, aDelay);
   });
 
   timeout(1).
@@ -786,5 +768,195 @@ function testConnectSetTimeout() {
   });
 
   yield finished;
-  assert.equal('OK', result);
+  assert.equals('OK', result);
+}
+
+function testConnectSetTimeoutInDeferredChain() {
+  var timeout = ns.Deferred.connect(function(aDelay, aCallback) {
+    setTimeout(aCallback, aDelay);
+  });
+
+  results.push(0);
+
+  timeout(1).
+  next(function() {
+    results.push(1);
+    return ns.next(function() {
+      results.push(2);
+    });
+  }).
+  next(function() {
+    results.push(3);
+    finished.value = true;
+  });
+
+  yield finished;
+  assert.equals([0, 1, 2, 3], results);
+}
+
+// This is different from original JSDeferred.
+// In the original version, callback functions can receive
+// multiple arguments, but Promise.jsm's deffered.resolve()
+// and deferred.reject() cannot do it.
+function testConnectCallbackArgs() {
+  var timeout = ns.Deferred.connect(function(aA, aB, aCallback) {
+    setTimeout(function() {
+      aCallback(0, 1, 2, aA, aB);
+    }, 0);
+  });
+
+  timeout(3, 4).
+  next(function(...aArgs) {
+    results.push(aArgs);
+    return timeout(5, 6);
+  }).
+  next(function(...aArgs) {
+    results.push(aArgs);
+    finished.value = true;
+  });
+
+  yield finished;
+  assert.equals([
+    [[0, 1, 2, 3, 4]],
+    [[0, 1, 2, 5, 6]]
+  ], results);
+}
+
+function testConnectCallbackArgsWithPosition() {
+  var timeout = ns.Deferred.connect(function(aA, aB, aCallback) {
+    setTimeout(function() {
+      aCallback(0, 1, 2, aA, aB);
+    }, 0);
+  }, { ok: 2 });
+
+  timeout(3, 4).
+  next(function(...aArgs) {
+    results.push(aArgs);
+    return timeout(5, 6);
+  }).
+  next(function(...aArgs) {
+    results.push(aArgs);
+    finished.value = true;
+  });
+
+  yield finished;
+  assert.equals([
+    [[0, 1, 2, 3, 4]],
+    [[0, 1, 2, 5, 6]]
+  ], results);
+}
+
+function testConnectFailureCallback() {
+  var timeout = ns.Deferred.connect(function(aSuccessCallback, aFailureCallback) {
+    setTimeout(function() {
+      aFailureCallback(0, 1, 2);
+    }, 0);
+  }, { ok: 0, ng: 1 });
+
+  timeout().
+  error(function(...aArgs) {
+    results.push(aArgs);
+    finished.value = true;
+  });
+
+  yield finished;
+  assert.equals([
+    [[0, 1, 2]]
+  ], results);
+}
+
+function testConnectWithThis() {
+  var target = {
+    property: Math.round(Math.random() * 10000)
+  };
+  var timeout = ns.Deferred.connect(function(aCallback) {
+    var self = this;
+    setTimeout(function() {
+      aCallback(self);
+    }, 0);
+  }, { target: target, ok: 0 });
+
+  timeout().
+  next(function(aResult) {
+    result = aResult;
+    finished.value = true;
+  });
+
+  yield finished;
+  assert.strictlyEquals([target], result);
+}
+
+function testRetry() {
+  var count = 0;
+  var successThird = function () {
+    var deferred = new ns.Deferred;
+    setTimeout(function() {
+      var current = ++count;
+      if (current == 3) {
+        deferred.call('third');
+      } else {
+        deferred.fail('no third');
+      }
+    }, 10);
+    return deferred;
+  }
+
+  ns.
+  next(function() {
+    return ns.Deferred.retry(4, successThird).next(function(aResult) {
+      results.push(aResult + ', ' + count);
+      count = 0;
+    }).
+    error(function(aError) {
+      results.push('never, ' + aError);
+    });
+  }).
+  next(function () {
+    return ns.Deferred.retry(3, successThird).next(function(aResult) {
+      results.push(aResult + ', ' + count);
+      count = 0;
+    }).
+    error(function (aError) {
+      results.push('never, ' + aError);
+    });
+  }).
+  next(function () {
+    return ns.Deferred.retry(2, successThird).next(function(aError) {
+      throw 'fail';
+    }).
+    error(function(aError) {
+      results.push('retry over');
+      finished.value = true;
+    });
+  }).
+  error(function(aError) {
+    results.push('error ' + aError);
+    finished.value = true;
+  });
+
+  yield finished;
+  assert.equals([
+    'third, 3',
+    'third, 3',
+    'retry over',
+  ], results);
+}
+
+function testNotStackOverFlow() {
+  var count = 10001;
+  ns.
+  loop(count, function(aCurrent) {
+    return aCurrent;
+  }).
+  next(function(aResult) {
+    result = aResult;
+    finished.value = true;
+  }).
+  error(function(aError) {
+    result = aError;
+    finished.value = true;
+  });
+
+  yield finished;
+  assert.equals(count - 1, result);
 }
