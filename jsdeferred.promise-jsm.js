@@ -7,6 +7,9 @@
  * JSDeferred Copyright (c) 2007 cho45 ( www.lowreal.net )
  *
  * This is a JSDeferred flavoured Promise.jsm, or a Promise.jsm based JSDeferred.
+ * Note, this works only on Firefox 25 and later because Promise.all() is not
+ * implemented on Promise.jsm in Firefox 24.xESR and Thunderbird 24.x.
+ *
  * Repository: https://github.com/piroor/promise-jsdeferred
  * Original: https://github.com/cho45/jsdeferred
  *
