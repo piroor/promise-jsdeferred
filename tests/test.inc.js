@@ -494,7 +494,7 @@ function testEarlierArray() {
   });
 
   yield finished;
-  yield 200;
+  yield 300;
   assert.equals([0, undefined], result);
 }
 
@@ -518,7 +518,7 @@ function testEarlierArrayReversed() {
   });
 
   yield finished;
-  yield 200;
+  yield 300;
   assert.equals([undefined, 1], result);
 }
 
@@ -542,7 +542,7 @@ function testEarlierHash() {
   });
 
   yield finished;
-  yield 200;
+  yield 300;
   assert.equals({ a: 0, b: undefined }, result);
 }
 
@@ -566,7 +566,7 @@ function testEarlierArgs() {
   });
 
   yield finished;
-  yield 200;
+  yield 300;
   assert.equals([0, undefined], result);
 }
 

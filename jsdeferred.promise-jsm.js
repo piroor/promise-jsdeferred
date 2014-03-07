@@ -53,8 +53,9 @@ if (!this.setTimeout) {
 }
 
 
-function WrappedPromise(aPromise) {
+function WrappedPromise(aPromise, aPrevious) {
   this._promise = aPromise;
+  this._previous = aPrevious;
 }
 
 WrappedPromise.prototype = {
@@ -65,7 +66,7 @@ WrappedPromise.prototype = {
   },
 
   then: function(...aArgs) {
-    return Deferred(this._promise.then.apply(this._promise, aArgs));
+    return Deferred(this._promise.then.apply(this._promise, aArgs), this);
   },
 
   // JSDeferred compatible APIs
@@ -89,13 +90,18 @@ WrappedPromise.prototype = {
   cancel: function() {
     if (typeof this._canceller == 'function')
       this._canceller.apply(this);
+
+    if (this._previous) {
+      this._previous.cancel();
+      delete this._previous;
+    }
   }
 };
 
 
-function WrappedDeferred(aDeferred) {
+function WrappedDeferred(aDeferred, aPrevious) {
   this._deferred = aDeferred;
-  this._promise = new WrappedPromise(aDeferred.promise);
+  this._promise = new WrappedPromise(aDeferred.promise, aPrevious);
 }
 
 WrappedDeferred.prototype = {
@@ -142,14 +148,14 @@ WrappedDeferred.prototype = {
 };
 
 
-function Deferred(aPromiseOrDeferred) {
+function Deferred(aPromiseOrDeferred, aPrevious) {
   if (!aPromiseOrDeferred)
-    return new WrappedDeferred(Promise.defer());
+    return new WrappedDeferred(Promise.defer(), aPrevious);
   if (Deferred.isDeferred(aPromiseOrDeferred))
     return aPromiseOrDeferred;
   if ('promise' in aPromiseOrDeferred)
-    return new WrappedDeferred(aPromiseOrDeferred);
-  return new WrappedPromise(aPromiseOrDeferred);
+    return new WrappedDeferred(aPromiseOrDeferred, aPrevious);
+  return new WrappedPromise(aPromiseOrDeferred, aPrevious);
 }
 
 //JSDeferred compatible APIs
@@ -234,10 +240,6 @@ Deferred.earlier = function(...aArgs) {
         results[aKey] = aResult;
         deferred.cancel();
         deferred.resolve(results);
-        // workaround: to avoid unexpected receiving of "canceled" deferred tasks,
-        // I bind a different object to the variable "results".
-        // the "cancel()" should cancel ancestor tasks...
-        results = {};
       })
       .error(function(aError) {
         deferred.reject(aError);
